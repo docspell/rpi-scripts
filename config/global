@@ -24,7 +24,7 @@ hosts=(sajetta)
 
 # The IPs for all the RPI machines. Use the names as defined above.
 declare -A hostip
-hostip[sajetta]=192.168.1.140
+hostip[sajetta]=192.168.1.141
 
 # Some extra packages to install via apt-get.
 declare -A extra_packages

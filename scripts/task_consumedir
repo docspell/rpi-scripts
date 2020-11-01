@@ -11,5 +11,5 @@ source $(dirname $(realpath $0))/../scripts/colors
 
 remote=${hostip[$1]}
 
-echo "${yellow}- Installing unoconv service on $1/$remote ...${reset}"
+echo "${yellow}- Installing consumedir service on $1/$remote ...${reset}"
 set_dark

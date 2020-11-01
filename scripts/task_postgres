@@ -11,7 +11,7 @@ source $(dirname $(realpath $0))/../scripts/colors
 
 remote=${hostip[$1]}
 
-echo "${yellow}- Installing postgresql …"
+echo "${yellow}- Installing postgresql …${reset}"
 set_dark
 
 if ssh root@$remote "command -v psql" >/dev/null; then
@@ -20,22 +20,29 @@ else
     ssh root@$remote "apt-get install -y postgresql-11 && apt-get -y autoremove"
 fi
 
-echo "${yellow}- Change config of data dir and create database …"
+echo "${underline}- Change config of data dir …${reset}"
 set_dark
 
+echo "  - Stopping postgresql"
+ssh root@$remote "systemctl stop postgresql.service"
+
 if ssh root@$remote "cat /etc/postgresql/11/main/postgresql.conf | grep 'mnt/usb/db'" > /dev/null; then
-    echo "  - Data directory already set"
+    echo "  - Config already set"
 else
-
-    ssh root@$remote "systemctl stop postgresql.service"
-
-    ssh root@$remote "mv -T /var/lib/postgresql/11/main /mnt/usb/db"
-    ssh root@$remote "chown -R postgres:postgres /mnt/usb/db"
-
     ssh root@$remote "sed -i \"s,data_directory = '/var/lib/postgresql/11/main',data_directory = '/mnt/usb/db',g\" /etc/postgresql/11/main/postgresql.conf"
-    ssh root@$remote "systemctl start postgresql.service"
 fi
 
+if ssh root@$remote "stat /mnt/usb/db/PG_VERSION" > /dev/null; then
+    echo "  - Data directory already initialized"
+else
+    ssh root@$remote 'su postgres -c "/usr/lib/postgresql/11/bin/initdb /mnt/usb/db/"'
+fi
+
+echo "${underline}- Initialize role and create docspell db …${reset}"
+set_dark
+
+echo "  - Starting postgresql"
+ssh root@$remote "systemctl start postgresql.service"
 
 if ssh root@$remote "su - postgres -c 'psql -c \\\du'" | grep docspell >/dev/null 2>&1; then
     echo "  - Role 'docspell' already exists."

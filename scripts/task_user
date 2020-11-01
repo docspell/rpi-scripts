@@ -12,10 +12,13 @@ source $(dirname $(realpath $0))/../scripts/colors
 remote=${hostip[$1]}
 
 echo "${yellow}- Setting up os user ${os_user} ...${reset}"
+set_dark
 
 if ssh root@$remote "cat /etc/passwd | grep $os_user" 2> /dev/null 1>&2; then
-    echo "User $os_user already set up."
+    echo "  - User $os_user already set up."
 else
     ssh root@$remote "addgroup $os_user"
     ssh root@$remote "adduser --shell /bin/bash --ingroup $os_user $os_user"
 fi
+
+reset_color

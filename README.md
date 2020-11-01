@@ -53,13 +53,13 @@ scripts/flash.sh /dev/<sdcard>
 ```
 
 It will download the dietpi image and copy it onto the card. When
-sshing into the machine the first time, you will be guided through the
-setup.
+sshing into the machine (default password is `dietpi`) the first time,
+you will be guided through the setup.
 
-I choose the following Options:
+Choose the following Options:
 
 - SSH Server: OpenSSH (needed for scp)
-- Webserver: Nginx (only for the master-mpd)
+- Webserver: Nginx (used as reverse proxy)
 - Samba server
 
 Run „Install”.
