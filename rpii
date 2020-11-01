@@ -11,7 +11,7 @@ setup() {
     remote=${hostip[$1]}
 
     echo "${green}${bold}${underline}Setting up machine $what ($remote)${reset}"
-    tasks=(task_sshkey task_user task_apt task_fstab task_samba task_solr task_postgres task_docspell task_nginx)
+    tasks=(task_sshkey task_user task_apt task_fstab task_samba task_solr task_postgres task_docspell task_unoconv task_consumedir task_nginx)
     for task in ${tasks[@]}; do
         "$workingdir/scripts/$task" "$what"
         if [ ! $? -eq 0 ]; then

@@ -11,10 +11,14 @@ source $(dirname $(realpath $0))/../scripts/colors
 
 remote=${hostip[$1]}
 
+echo "${yellow}- Installing base packages on $1/$remote ...${reset}"
+set_dark
+
 pkgs="${extra_packages[all]}  ${extra_packages[$1]}"
 if [ -n "$pkgs" ]; then
-    echo "${yellow}- Installing extra packages: $pkgs${reset}"
     set_dark
     ssh root@$remote "apt-get install -y $pkgs && apt-get -y autoremove"
     reset_color
+else
+    echo "  - No packages defined."
 fi
