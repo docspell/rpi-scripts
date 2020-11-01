@@ -13,3 +13,11 @@ remote=${hostip[$1]}
 
 echo "${yellow}- Installing unoconv service on $1/$remote ...${reset}"
 set_dark
+
+echo "  - Add systemd unit"
+scp $workingdir/config/unoconv/systemd.unit root@$remote:/etc/systemd/system/unoconv.service
+ssh root@$remote "systemctl enable unoconv.service"
+ssh root@$remote "systemctl daemon-reload"
+
+echo "  - Starting unoconv service"
+ssh root@$remote "systemctl start unoconv"

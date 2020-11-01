@@ -1,6 +1,11 @@
 [Unit]
-After=networking.target
+Wants=docspell-restserver.target
+After=network.target
 Description=Docspell Consumedir
 
 [Service]
 ExecStart=/opt/consumedir-start
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -34,6 +34,7 @@ echo "${underline}- Installing systemd unit file…${reset}"
 set_dark
 
 scp $workingdir/config/solr/systemd.unit root@$remote:/etc/systemd/system/solr.service
+ssh root@$remote "systemctl enable solr.service"
 ssh root@$remote "systemctl daemon-reload"
 
 echo "${underline}- Start solr and create a core …${reset}"

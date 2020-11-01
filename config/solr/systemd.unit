@@ -4,8 +4,6 @@ Description=Apache SOLR
 [Service]
 Type=forking
 User=solr
-#Environment=SOLR_INCLUDE=/etc/default/solr.in.sh
-#Environment="SOLR_HOME=/mnt/usb/solr/data"
 Environment="SOLR_PORT=8983"
 ExecStart=/mnt/usb/solr/solr/bin/solr start
 ExecStop=/mnt/usb/solr/solr/bin/solr stop
@@ -15,3 +13,6 @@ LimitNPROC=65000
 TimeoutSec=180s
 Group=solr
 User=solr
+
+[Install]
+WantedBy=multi-user.target

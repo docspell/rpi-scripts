@@ -1,4 +1,4 @@
 #! /usr/bin/env bash
 set -e
 
-su {{user}} -c "/opt/docspell-tools/consumedir.sh --path '/mnt/usb/docs' -v -m -i --iheader 'Docspell-Integration:{{ds_int_header}}' 'http://localhost:7880/api/v1/open/integration/item'"
+su {{user}} -c "/opt/docspell-tools/consumedir.sh --path '/mnt/usb/docs' {{delete}} -v -m -i --iheader 'Docspell-Integration:{{ds_int_header}}' 'http://localhost:7880/api/v1/open/integration/item'"

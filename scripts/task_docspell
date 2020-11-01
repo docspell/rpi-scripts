@@ -29,6 +29,17 @@ else
     ssh root@$remote "if [ ! -e $ds_joex_deb ] || [[ \"$ds_joex_deb\" =~ \"SNAPSHOT\" ]]; then curl -LO $ds_joex_url; fi && dpkg -i $ds_joex_deb"
 fi
 
+## fix user bug
+ssh root@$remote "mkdir -p /home/docspell && chown -R docspell:docspell /home/docspell"
+
+echo "  - Creating temp dir on ssd"
+if ssh root@$remote "[[ -e /mnt/usb/tmp ]]"; then
+    echo "    | tmp directory already exist"
+else
+    ssh root@$remote "mkdir -p /mnt/usb/tmp && chown -R docspell:docspell /mnt/usb/tmp"
+    ssh root@$remote 'echo JAVA_OPTS=\"-Xmx4G -Djava.io.tmpdir=/mnt/usb/tmp/\" >> /etc/default/docspell-joex'
+    ssh root@$remote 'echo JAVA_OPTS=\"-Djava.io.tmpdir=/mnt/usb/tmp/\" >> /etc/default/docspell-restserver'
+fi
 
 echo "- Install ocrmypdf ..."
 set_dark

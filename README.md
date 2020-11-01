@@ -3,8 +3,10 @@
 This repository contains scripts and notes to automate most of
 creating a raspberry pi with docspell on it.
 
-This is a poor-mans replacement for automatically generating images…
-which may come later.
+*Note: This is a poor-mans way to do thing, instead of e.g.
+automatically generating flash images… which may come later. Any help
+here is much appreciated! So don't hesitate to submit issues and/or
+pull requests :-)*
 
 ## Basics
 
@@ -17,25 +19,25 @@ distribution (which is based on raspbian).
 - PostgreSQL is installed
 - Apache SOLR is installed
 - Docspell is started with a default config suitable for "in-house"
-  setups – when exposing to the internet *some more steps should be
-  taken!*
+  setups (i.e. *not* exposed to the internet)
 
 
 ## Hardware
 
 I'm using here the following (about 250€, summer 2020):
 
-- Raspberry Pi Model 4, 8GB RAM (it is highly recommended to use the
-  8G model, the 4G model should work, too though)
-- Some flash card
-- external 500GB USB SSD hard disk
+- Raspberry Pi Model 4, 8GB RAM (the 4G model should work, too, but
+  the 8G model is recommended)
+- Some flash card, using a 64G here, but a 8G one would be enough
+- external 500GB USB SSD hard disk: this stores the postgres data,
+  solr, backups and incoming files
 - case + power supply
 
 ## Prepare the USB disk
 
 The disk should be formatted already and a disk label should be set so
 that it can be referenced no matter which usb port it is plugged in.
-On your computer, run this:
+This is done by the following script. On your computer, run this:
 
 ``` shell
 ./scripts/prepare-disk.sh /dev/<usb-disk>
@@ -67,7 +69,19 @@ Run „Install”.
 Login again for final steps, then logout. Now it is ready to apply the
 things from this repo.
 
+
 ## Customize
+
+This will install everything required to run docspell. Additionally
+samba is installed and exposes the following directories:
+
+- "Incoming" (german: "Eingehend"): the folder that is watched to
+  import files in docspell. You can mount/access it from a remote
+  computer and drop files in there to be processed.
+- "Config": the folder containing the docspell configuration file. You
+  still must restart the app(s) manually.
+- "Backups": a folder with daily database backups. You can copy them
+  to some other place.
 
 Go to `config/global` and check the settings. Every machine must be
 configured with a name and an IP address. When everything looks ok,
@@ -79,3 +93,10 @@ run
 
 This will run necessary commands on the machine configured with
 `<name>`. Use special name `all` to run setup for all machines.
+
+
+## Limitations
+
+- currently, docx files don't seem to work here, because libreoffice
+  crashes (not really sure what happens exactly…). This might be
+  mitigated by using a different base image (e.g. raspbian)

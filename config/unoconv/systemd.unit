@@ -1,0 +1,11 @@
+[Unit]
+Wants=docspell-joex.target
+After=network.target
+Description=Unoconv listener
+
+[Service]
+ExecStart=unoconv -l
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

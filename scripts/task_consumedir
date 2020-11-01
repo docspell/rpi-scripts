@@ -34,6 +34,9 @@ ssh root@$remote "ln -nsf /opt/docspell-tools-${ds_version} /opt/docspell-tools"
 echo "  - Setup start script"
 export user=$os_user
 export ds_int_header
+if [ $consume_delete_uploads == "true" ]; then
+    export delete="-d"
+fi
 cat $workingdir/config/consumedir/consumedir-start | $mo > $target/consumedir-start
 scp $target/consumedir-start root@$remote:/opt/
 ssh root@$remote "chmod 755 /opt/consumedir-start"
@@ -41,6 +44,7 @@ ssh root@$remote "chmod 755 /opt/consumedir-start"
 
 echo "  - Add systemd unit"
 scp $workingdir/config/consumedir/systemd.unit root@$remote:/etc/systemd/system/docspell-consumedir.service
+ssh root@$remote "systemctl enable docspell-consumedir.service"
 ssh root@$remote "systemctl daemon-reload"
 
 echo "  - Starting consumedir service"

@@ -24,6 +24,8 @@ else
     export group=$os_user
     smbconf=$(cat $templ | $mo)
     ssh root@$remote "echo \"$smbconf\" >> /etc/samba/smb.conf"
+    ssh root@$remote "sed -i 's,WORKGROUP,Docspell,g' /etc/samba/smb.conf"
+    ssh root@$remote "smbpasswd -L -na $os_user"
 fi
 
 ssh root@$remote "systemctl restart smbd.service"
