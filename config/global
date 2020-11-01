@@ -52,7 +52,7 @@ compose_systemd_url="https://gist.github.com/Luzifer/${compose_gist}/archive/c57
 ds_int_header="sajetta-int"
 
 # Set the url to download docspell
-ds_version="0.13.0"
+ds_version="0.14.0"
 ds_restserver_deb="docspell-restserver_${ds_version}_all.deb"
 ds_restserver_url="https://github.com/eikek/docspell/releases/download/v${ds_version}/${ds_restserver_deb}"
 ds_joex_deb="docspell-joex_${ds_version}_all.deb"

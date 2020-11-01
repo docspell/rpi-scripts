@@ -22,7 +22,7 @@ else
     ssh root@$remote "apt-get install -y ghostscript tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng unpaper unoconv wkhtmltopdf"
 fi
 
-if ssh root@$remote "command -v docspell-restserver" > /dev/null; then
+if ssh root@$remote "[[ -e ~/$ds_restserver_deb ]]" > /dev/null; then
     echo "Docspell debian packages already installed"
 else
     ssh root@$remote "if [ ! -e $ds_restserver_deb ] || [[ \"$ds_restserver_deb\" =~ \"SNAPSHOT\" ]]; then curl -LO $ds_restserver_url; fi && dpkg -i $ds_restserver_deb"
