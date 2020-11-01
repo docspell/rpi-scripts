@@ -10,6 +10,38 @@ source $(dirname $(realpath $0))/../config/global
 source $(dirname $(realpath $0))/../scripts/colors
 
 remote=${hostip[$1]}
+mo=$workingdir/scripts/mo
+
 
 echo "${yellow}- Installing consumedir service on $1/$remote ...${reset}"
 set_dark
+
+
+ssh root@$remote "chown -R $os_user:$os_user /mnt/usb/docs"
+
+echo "  - Install requirements"
+if ssh root@$remote "command -v inotifywait" > /dev/null; then
+    echo "  | already installed"
+else
+    ssh root@$remote "apt-get install -y inotify-tools"
+fi
+
+echo "  - Install docspell-tools"
+ssh root@$remote "[[ -e /opt/docspell-tools-${ds_version}.zip ]] || (cd /opt && curl -LO $ds_tools_url && unzip docspell-tools-${ds_version}.zip)"
+ssh root@$remote "chmod 755 /opt/docspell-tools-${ds_version}/*.sh"
+ssh root@$remote "ln -nsf /opt/docspell-tools-${ds_version} /opt/docspell-tools"
+
+echo "  - Setup start script"
+export user=$os_user
+export ds_int_header
+cat $workingdir/config/consumedir/consumedir-start | $mo > $target/consumedir-start
+scp $target/consumedir-start root@$remote:/opt/
+ssh root@$remote "chmod 755 /opt/consumedir-start"
+
+
+echo "  - Add systemd unit"
+scp $workingdir/config/consumedir/systemd.unit root@$remote:/etc/systemd/system/docspell-consumedir.service
+ssh root@$remote "systemctl daemon-reload"
+
+echo "  - Starting consumedir service"
+ssh root@$remote "systemctl start docspell-consumedir"

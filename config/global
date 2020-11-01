@@ -57,6 +57,7 @@ ds_restserver_deb="docspell-restserver_${ds_version}_all.deb"
 ds_restserver_url="https://github.com/eikek/docspell/releases/download/v${ds_version}/${ds_restserver_deb}"
 ds_joex_deb="docspell-joex_${ds_version}_all.deb"
 ds_joex_url="https://github.com/eikek/docspell/releases/download/v${ds_version}/${ds_joex_deb}"
+ds_tools_url="https://github.com/eikek/docspell/releases/download/v${ds_version}/docspell-tools-${ds_version}.zip"
 
 # The server name used to conveniently access the mpd web frontend.
 nginx_servername=docs.home

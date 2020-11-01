@@ -1,0 +1,6 @@
+[Unit]
+After=networking.target
+Description=Docspell Consumedir
+
+[Service]
+ExecStart=/opt/consumedir-start
