@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -e
+
+if [ -z "$1" ]; then
+    echo "Mandatory host name not specified"
+    exit 1
+fi
+
+source $(dirname $(realpath $0))/../config/global
+source $(dirname $(realpath $0))/../scripts/colors
+
+templ=$workingdir/config/fstab/fstab-add
+mo=$workingdir/scripts/mo
+
+remote=${hostip[$1]}
+
+echo "${yellow}- Setting up fstab ...${reset}"
+set_dark
+
+ssh root@$remote "mkdir -p /mnt/usb"
+
+if ssh root@$remote "cat /etc/fstab | grep $disk_label" 2> /dev/null 1>&2; then
+    echo "Disk $disk_label already set up."
+else
+    export disk_label
+    fstabline=$(cat $templ | $mo)
+    ssh root@$remote "echo $fstabline >> /etc/fstab"
+fi
+
+if ssh root@$remote "mount |grep /mnt/usb" 2> /dev/null 1>&2; then
+    echo "USB disk already mounted."
+else
+    echo "Mounting usb disk ..."
+    ssh root@$remote "mount /mnt/usb"
+fi
+
+# set up directories
+ssh root@$remote "mkdir -p /mnt/usb/{db,solr,backups,docs}"
+
+reset_color

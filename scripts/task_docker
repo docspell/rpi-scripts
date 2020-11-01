@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -e
+
+if [ -z "$1" ]; then
+    echo "Mandatory hostname not specified"
+    exit 1
+fi
+
+source $(dirname $(realpath $0))/../config/global
+source $(dirname $(realpath $0))/../scripts/colors
+
+remote=${hostip[$1]}
+
+echo "${yellow}- Installing docker …${reset}"
+set_dark
+
+if ssh root@$remote "command -v docker" >/dev/null; then
+    echo "Docker already installed: $(ssh root@$remote 'docker --version')"
+else
+    ssh root@$remote "curl -sSL https://get.docker.com | sh"
+    ssh root@$remote "usermod -aG docker dietpi $os_user"
+fi
+
+reset_color

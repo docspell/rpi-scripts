@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -e
+
+if [ -z "$1" ]; then
+    echo "Mandatory hostname not specified"
+    exit 1
+fi
+
+source $(dirname $(realpath $0))/../config/global
+source $(dirname $(realpath $0))/../scripts/colors
+
+templ=$workingdir/config/samba/smb.conf
+mo=$workingdir/scripts/mo
+
+remote=${hostip[$1]}
+
+echo "${yellow}- Setting up samba ...${reset}"
+set_dark
+
+if ssh root@$remote "cat /etc/samba/smb.conf | grep $os_user" 2> /dev/null 1>&2; then
+    echo "Samba seems already setup"
+else
+    export user=$os_user
+    export group=$os_user
+    smbconf=$(cat $templ | $mo)
+    ssh root@$remote "echo \"$smbconf\" >> /etc/samba/smb.conf"
+fi
+
+ssh root@$remote "systemctl restart smbd.service"
+
+reset_color

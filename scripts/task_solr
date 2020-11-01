@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -e
+if [ -z "$1" ]; then
+    echo "Mandatory host name not specified"
+    exit 1
+fi
+
+source $(dirname $(realpath $0))/../config/global
+source $(dirname $(realpath $0))/../scripts/colors
+
+
+remote=${hostip[$1]}
+
+echo "${yellow}- Installing solr on $1/$remote ...${reset}"
+set_dark
+ssh root@$remote "if [ ! -e /mnt/usb/solr/solr.tgz ]; then curl -L -o /mnt/usb/solr/solr.tgz $solr_url && cd /mnt/usb/solr && tar xf solr.tgz; fi"
+ssh root@$remote "cd /mnt/usb/solr && ln -nsf solr-${solr_version} solr"
+
+echo "${yellow}- Creating solr user … ${reset}"
+set_dark
+if ssh root@$remote "cat /etc/passwd | grep $solr_user" 2> /dev/null 1>&2; then
+    echo "User for solr already setup"
+else
+    ssh root@$remote "addgroup --system $solr_user"
+    ssh root@$remote "adduser --system --home /mnt/usb/solr --shell /bin/bash --no-create-home --ingroup $solr_user $solr_user"
+fi
+ssh root@$remote "mkdir -p /mnt/usb/solr/data"
+ssh root@$remote "chown -R $solr_user:$solr_user /mnt/usb/solr"
+
+echo "${yellow}- Installing systemd unit file…${reset}"
+set_dark
+
+scp $workingdir/config/solr/systemd.unit root@$remote:/etc/systemd/system/solr.service
+ssh root@$remote "systemctl daemon-reload"
+
+echo "${yellow}- Start solr and create a core …${reset}"
+ssh root@$remote "systemctl start solr.service"
+sleep 3
+ssh root@$remote "su solr -c '/mnt/usb/solr/solr/bin/solr create -c docspell'"
+
+reset_color

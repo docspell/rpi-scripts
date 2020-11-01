@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+#
+# Identify your raspberry pi. Info is from
+# https://elinux.org/RPi_HardwareHistory#Board_Revision_History
+#
+
+if [ -z "$1" ]; then
+    echo "Mandatory hostname not specified"
+    exit 1
+fi
+
+source $(dirname $(realpath $0))/../config/global
+source $(dirname $(realpath $0))/../scripts/colors
+
+remote=${hostip[$1]}
+
+declare -A pimodels
+pimodels[0002]="Pi 1.0/Q1 2012/Model B/256 MB"
+pimodels[0003]="Pi 1.0/Q3 2012/Model B (ECN0001)/256 MB"
+pimodels[0004]="Pi 2.0/Q3 2012/Model B/256 MB"
+pimodels[0005]="Pi 2.0/Q4 2012/Model B/256 MB"
+pimodels[0006]="Pi 2.0/Q4 2012/Model B/256 MB"
+pimodels[0007]="Pi 2.0/Q1 2013/Model A/256 MB"
+pimodels[0008]="Pi 2.0/Q1 2013/Model A/256 MB"
+pimodels[0009]="Pi 2.0/Q1 2013/Model A/256 MB"
+pimodels[000d]="Pi 2.0/Q4 2012/Model B/512 MB"
+pimodels[000e]="Pi 2.0/Q4 2012/Model B/512 MB"
+pimodels[000f]="Pi 2.0/Q4 2012/Model B/512 MB"
+pimodels[0010]="Pi 1.0/Q3 2014/Model B+/512 MB"
+pimodels[0011]="Pi 1.0/Q2 2014/Model Compute Module 1/512 MB"
+pimodels[0012]="Pi 1.1/Q4 2014/Model A+/256 MB"
+pimodels[0013]="Pi 1.2/Q1 2015/Model B+/512 MB"
+pimodels[0014]="Pi 1.0/Q2 2014/Model Compute Module 1/512 MB"
+pimodels[0015]="Pi 1.1/Model A+/256 MB / 512 MB"
+pimodels[a01040]="Pi 1.0/Model 2B/1 GB"
+pimodels[a01041]="Pi 1.1/Q1 2015/Model 2 Model B/1 GB"
+pimodels[a21041]="Pi 1.1/Q1 2015/Model 2 Model B/1 GB"
+pimodels[a22042]="Pi 1.2/Q3 2016/Model 2 Model B (with BCM2837)/1 GB"
+pimodels[900021]="Pi 1.1/Q3 2016/Model A+/512 MB"
+pimodels[900032]="Pi 1.2/Q2 2016/Model B+/512 MB"
+pimodels[900092]="Pi 1.2/Q4 2015/Model Zero/512 MB"
+pimodels[900093]="Pi 1.3/Q2 2016/Model Zero/512 MB"
+pimodels[920093]="Pi 1.3/Q4 2016/Model Zero/512 MB"
+pimodels[9000c1]="Pi 1.1/Q1 2017/Model Zero W/512 MB"
+pimodels[a02082]="Pi 1.2/Q1 2016/Model 3B/1 GB"
+pimodels[a020a0]="Pi 1.0/Q1 2017/Model Compute Module 3 (and CM3 Lite)/1 GB"
+pimodels[a22082]="Pi 1.2/Q1 2016/Model 3B/1 GB"
+pimodels[a32082]="Pi 1.2/Q4 2016/Model 3B/1 GB"
+pimodels[a020d3]="Pi 1.3/Q1 2018/Model 3B+/1 GB"
+
+rev=$(ssh root@$remote "cat /proc/cpuinfo | grep ^Revision | cut -d':' -f2 | xargs")
+model="${pimodels[$rev]}"
+
+if [ -z "$model" ]; then
+   model="Unknown model"
+fi
+
+echo "$model/$rev"

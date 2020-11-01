@@ -1,0 +1,35 @@
+# -*- shell-script -*-
+
+set_red() {
+    tput setaf 1
+}
+set_green() {
+    tput setaf 2
+}
+set_yellow() {
+    tput setaf 3
+}
+set_dark() {
+    tput setaf 8
+}
+reset_color() {
+    tput sgr0
+    tput rmul
+}
+set_dim() {
+    tput dim
+}
+set_bold() {
+    tput bold
+}
+set_underline() {
+    tput smul
+}
+
+red=$(set_red)
+green=$(set_green)
+yellow=$(set_yellow)
+dark=$(set_dark)
+reset=$(reset_color)
+dimmed=$(set_dim)
+underline=$(set_underline)

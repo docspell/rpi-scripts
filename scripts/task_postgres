@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -e
+
+if [ -z "$1" ]; then
+    echo "Mandatory hostname not specified"
+    exit 1
+fi
+
+source $(dirname $(realpath $0))/../config/global
+source $(dirname $(realpath $0))/../scripts/colors
+
+remote=${hostip[$1]}
+
+echo "${yellow}- Installing postgresql …"
+set_dark
+
+if ssh root@$remote "command -v psql" >/dev/null; then
+    echo "  - PostgreSQL already installed"
+else
+    ssh root@$remote "apt-get install -y postgresql-11 && apt-get -y autoremove"
+fi
+
+echo "${yellow}- Change config of data dir and create database …"
+set_dark
+
+if ssh root@$remote "cat /etc/postgresql/11/main/postgresql.conf | grep 'mnt/usb/db'" > /dev/null; then
+    echo "  - Data directory already set"
+else
+
+    ssh root@$remote "systemctl stop postgresql.service"
+
+    ssh root@$remote "mv -T /var/lib/postgresql/11/main /mnt/usb/db"
+    ssh root@$remote "chown -R postgres:postgres /mnt/usb/db"
+
+    ssh root@$remote "sed -i \"s,data_directory = '/var/lib/postgresql/11/main',data_directory = '/mnt/usb/db',g\" /etc/postgresql/11/main/postgresql.conf"
+    ssh root@$remote "systemctl start postgresql.service"
+fi
+
+
+if ssh root@$remote "su - postgres -c 'psql -c \\\du'" | grep docspell >/dev/null 2>&1; then
+    echo "  - Role 'docspell' already exists."
+else
+    scp $workingdir/config/postgres/init.sql root@$remote:/tmp/
+    ssh root@$remote "su - postgres -c 'psql -f /tmp/init.sql'"
+    ssh root@$remote "rm /tmp/init.sql"
+fi
+
+if ssh root@$remote "su - postgres -c 'psql -c \\\l'" | grep docspell >/dev/null 2>&1; then
+    echo "  - Database 'docspell' already exists."
+else
+    ssh root@$remote "export PGPASSWORD=docspell ; psql -U docspell -h localhost -c 'create database docspell' postgres"
+fi
+
+reset_color

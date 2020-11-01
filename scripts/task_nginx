@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -e
+if [ -z "$1" ]; then
+    echo "Mandatory host name not specified"
+    exit 1
+fi
+
+source $(dirname $(realpath $0))/../config/global
+source $(dirname $(realpath $0))/../scripts/colors
+
+templ=$workingdir/config/nginx/nginx-mpc4s.conf
+source $workingdir/scripts/mo
+
+remote=${hostip[$1]}
+
+
+if [ "$mpd_master" = "$1" ]; then
+    echo "${yellow}- Installing nginx config to mpc4s-player ...${reset}"
+    set_dark
+    export nginx_servername
+    export mpc4s_bind_port
+
+    cat $templ | mo > $target/nginx-mpc4s
+
+    scp $target/nginx-mpc4s root@$remote:/etc/nginx/sites-enabled/
+    ssh root@$remote "systemctl reload nginx"
+    reset_color
+else
+    echo "${yellow}${dimmed}- Not running nignx task on mpd-proxies${reset}"
+fi

@@ -1,0 +1,8 @@
+TZ=Europe/Berlin
+DOCSPELL_HEADER_VALUE={{ds_int_header}}
+DB_TYPE=postgresql
+DB_HOST=db
+DB_PORT=5432
+DB_NAME=docspell
+DB_USER=docspell
+DB_PASS=docspell

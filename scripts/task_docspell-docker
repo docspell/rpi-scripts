@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -e
+if [ -z "$1" ]; then
+    echo "Mandatory host name not specified"
+    exit 1
+fi
+
+source $(dirname $(realpath $0))/../config/global
+source $(dirname $(realpath $0))/../scripts/colors
+
+env_templ=$workingdir/config/docspell/env
+mo=$workingdir/scripts/mo
+
+remote=${hostip[$1]}
+
+echo "${yellow}- Installing docspell via docker ...${reset}"
+set_dark
+
+# Download docspell and systemd integration
+ssh root@$remote "[[ -e /opt/compose-systemd.zip ]] || (cd /opt && curl -L -o compose-systemd.zip $compose_systemd_url && unzip compose-systemd.zip && mv ${compose_gist}* compose-systemd)"
+
+# Create systemd unit files
+ssh root@$remote "cat /opt/compose-systemd/docker-compose.service | sed 's,/etc/compose,/opt/docspell,g' > /etc/systemd/system/docspell-docker.service"
+ssh root@$remote "cat /opt/compose-systemd/docker-compose-reload.service | sed 's,docker-compose.service,docspell-docker.service,g' > /etc/systemd/system/docspell-docker-reload.service"
+ssh root@$remote "cat /opt/compose-systemd/docker-compose-reload.timer | sed 's,docker-compose.service,docspell-docker.service,g' > /etc/systemd/system/docspell-docker-reload.timer"
+
+
+# 'install' into /opt/docspell
+ssh root@$remote "rm -rf /opt/docspell ; mkdir -p /opt/docspell"
+export ds_int_header
+envfile=$(cat $env_templ | $mo)
+
+ssh root@$remote "echo \"$envfile\" > /opt/docspell/.env"
+scp $workingdir/config/docspell/docker-compose.yml root@$remote:/opt/docspell/
+scp $workingdir/config/docspell/docspell-docker.conf root@$remote:/opt/docspell/docspell.conf
+
+# pull images
+ssh root@$remote "cd /opt/docspell && docker-compose pull"
+
+
+# Reload systemd (which starts docker-compose, and therefore docspell)
+ssh root@$remote "systemctl daemon-reload"
+ssh root@$remote "systemctl enable --now docspell-docker.service docspell-docker-reload.timer"
+
+reset_color

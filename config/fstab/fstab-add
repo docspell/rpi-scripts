@@ -1,0 +1,1 @@
+/dev/disk/by-label/{{disk_label}}   /mnt/usb  ext4  auto,rw,exec,async 0 0

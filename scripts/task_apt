@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -e
+
+if [ -z "$1" ]; then
+    echo "Mandatory hostname not specified"
+    exit 1
+fi
+
+source $(dirname $(realpath $0))/../config/global
+source $(dirname $(realpath $0))/../scripts/colors
+
+remote=${hostip[$1]}
+
+pkgs="${extra_packages[all]}  ${extra_packages[$1]}"
+if [ -n "$pkgs" ]; then
+    echo "${yellow}- Installing extra packages: $pkgs${reset}"
+    set_dark
+    ssh root@$remote "apt-get install -y $pkgs && apt-get -y autoremove"
+    reset_color
+fi

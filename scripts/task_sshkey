@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -e
+
+if [ -z "$1" ]; then
+    echo "Mandatory hostname not specified"
+    exit 1
+fi
+
+source $(dirname $(realpath $0))/../config/global
+source $(dirname $(realpath $0))/../scripts/colors
+
+remote=${hostip[$1]}
+echo "${yellow}- Checking for SSH key on $remote ($1) ...${reset}"
+
+if [ ! -e $id_pub ]; then
+    echo "No public key found in $id_pub"
+    exit 1
+fi
+
+pkey=$(cat $id_pub)
+set_dark
+if ! ssh root@$remote "cat /root/.ssh/authorized_keys2 | grep \"$pkey\" 2> /dev/null 1>&2"; then
+    echo "Installing SSH key ..."
+    ssh root@$remote "mkdir -p /root/.ssh && echo $pkey >> /root/.ssh/authorized_keys2"
+else
+    echo "SSH Key already installed"
+fi
+reset_color

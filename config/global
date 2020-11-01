@@ -1,0 +1,62 @@
+# -*- shell-script -*-
+
+# needs bash > 4.0
+#
+# Defines configuration for all RPis.
+
+
+# The url to the dietpi image. This is used with the flash script
+dietpi_image="https://dietpi.com/downloads/images/testing/DietPi_RPi-ARMv8-Buster.7z"
+
+# Your public ssh key
+id_pub=~/.ssh/id_rsa.pub
+
+workingdir=$(realpath $(dirname $0)/..)
+target="$workingdir/target"
+
+if [ ! -e $target ]; then
+   mkdir -p $target
+fi
+
+# All your RPis. For each raspberry pi you want to use,
+# name it here and assign its ip.
+hosts=(sajetta)
+
+# The IPs for all the RPI machines. Use the names as defined above.
+declare -A hostip
+hostip[sajetta]=192.168.1.140
+
+# Some extra packages to install via apt-get.
+declare -A extra_packages
+extra_packages[all]="mc curl iftop emacs25-nox openjdk-11-jdk"
+
+# Standard User
+os_user=sajetta
+os_pass=sajetta
+
+# USB Disk
+disk_label="dsdata"
+
+# SOLR
+solr_version="8.6.3"
+solr_url="https://downloads.apache.org/lucene/solr/${solr_version}/solr-${solr_version}.tgz"
+solr_user=solr
+
+# Docker Compose Helpers
+# See this gist: https://gist.github.com/Luzifer/7c54c8b0b61da450d10258f0abd3c917
+compose_gist=7c54c8b0b61da450d10258f0abd3c917
+compose_systemd_url="https://gist.github.com/Luzifer/${compose_gist}/archive/c5738801b6b34cab30036a33671ac461f0195622.zip"
+
+
+# Docspell
+ds_int_header="sajetta-int"
+
+# Set the url to download docspell
+ds_version="0.13.0"
+ds_restserver_deb="docspell-restserver_${ds_version}_all.deb"
+ds_restserver_url="https://github.com/eikek/docspell/releases/download/v${ds_version}/${ds_restserver_deb}"
+ds_joex_deb="docspell-joex_${ds_version}_all.deb"
+ds_joex_url="https://github.com/eikek/docspell/releases/download/v${ds_version}/${ds_joex_deb}"
+
+# The server name used to conveniently access the mpd web frontend.
+nginx_servername=docs.home

@@ -1,0 +1,158 @@
+#!/usr/bin/env bash
+
+source $(dirname $(realpath $0))/config/global
+source $(dirname $(realpath $0))/scripts/colors
+
+workingdir=$(dirname $(realpath $0))
+target="$workingdir/target"
+
+setup() {
+    what=$1
+    remote=${hostip[$1]}
+
+    echo "${green}${bold}${underline}Setting up machine $what ($remote)${reset}"
+    tasks=(task_sshkey task_user task_apt task_fstab task_samba task_solr task_postgres task_docspell task_nginx)
+    for task in ${tasks[@]}; do
+        "$workingdir/scripts/$task" "$what"
+        if [ ! $? -eq 0 ]; then
+            echo "${red}Error occured in task $task on machine $what ($remote)!${reset}"
+        fi
+    done
+}
+
+runtask() {
+    what=$1
+    task=$2
+    remote=${hostip[$1]}
+
+    script="$workingdir/scripts/task_$task"
+    if [ -e "$script" ]; then
+        echo "${green}${bold}${underline}Running task $task on machine $what ($remote)${reset}"
+        "$script" "$what"
+    else
+        echo "Task not found: $task in $workingdir/scripts"
+        exit 1
+    fi
+}
+
+rebootpi() {
+    what=$1
+    remote=${hostip[$1]}
+
+    echo "${green}${bold}${underline}Rebooting machine $what ($remote)${reset}"
+    ssh root@$remote "systemctl reboot"
+}
+
+usage() {
+    echo "Usage: $0 {setup|clean}"
+    echo
+    echo "setup:     Setup one or more raspberry pis to be a music player. Expects one argument of:"
+    echo
+    echo "               all ${hosts[@]}"
+    echo
+    echo "           Using 'all' will setup all machines. This is configured in 'config/global'."
+    echo "           Connects to the machine and runs some tasks from 'scripts/':"
+    echo
+    echo "           - task_sshkey: Copies your SSH key to the remote machine if not present"
+    echo "           - task_apt: Installs some more packages via apt-get"
+    echo "           - task_fstab: Changes fstab to mount a network share"
+    echo "           - task_nginx: Install a NGINX config file to create a reverse proxy"
+    echo
+    echo "           All tasks take their input from 'config/global'. File templates for all config"
+    echo "           files are below 'config/' directory. The tasks will try to skip if they have"
+    echo "           been applied already."
+    echo
+    echo "task:      Run just one task from the 'scripts/' directory. Specify the task (without the"
+    echo "           task_ prefix) and then the machine or 'all' for all machines, for example:"
+    echo
+    echo "               rpii task apt all"
+    echo
+    echo "clean:     Deletes the 'target' directory."
+    echo
+    echo "machines:  List all configured machines and some infos to them."
+    echo
+    echo "reboot:    Reboot all or some machines."
+    echo
+    echo "help:      Prints this help text."
+    echo
+}
+
+
+action=$1
+if [ -n "$action" ]; then
+    shift
+fi
+
+case "$action" in
+    setup)
+        what="$1"
+        if [ -z "$what" ]; then
+            echo "Don't know what to setup. Use 'all' ore one of: ${hosts[@]}"
+            exit 1
+        elif [ "$what" = "all" ]; then
+            for host in ${hosts[@]}; do
+                setup "$host"
+            done
+        elif [[ " ${hosts[@]} " =~ " ${what} " ]]; then
+            setup $what
+        else
+            echo "Don't know how to setup: $what. Use 'all' ore one of: ${hosts[@]}"
+            exit 1
+        fi
+        ;;
+
+    task)
+        task="$1"
+        what="$2"
+        if [ -z "$what" ]; then
+            echo "Don't know what to setup. Use 'all' ore one of: ${hosts[@]}"
+            exit 1
+        elif [ "$what" = "all" ]; then
+            for host in ${hosts[@]}; do
+                runtask "$host" "$task"
+            done
+        elif [[ " ${hosts[@]} " =~ " ${what} " ]]; then
+            runtask "$what" "$task"
+        else
+            echo "Don't know how to setup: $what. Use 'all' ore one of: ${hosts[@]}"
+            exit 1
+        fi
+        ;;
+
+    machines)
+        for host in ${hosts[@]}; do
+            rev=$($workingdir/scripts/task_info $host)
+            echo "- $host (${hostip[$host]}), $rev"
+        done
+        ;;
+
+    reboot)
+        what="$1"
+        if [ -z "$what" ]; then
+            echo "Don't know what to setup. Use 'all' ore one of: ${hosts[@]}"
+            exit 1
+        elif [ "$what" = "all" ]; then
+            for host in ${hosts[@]}; do
+                rebootpi $host
+            done
+        elif [[ " ${hosts[@]} " =~ " ${what} " ]]; then
+            rebootpi "$what"
+        else
+            echo "Don't know how to reboot: $what. Use 'all' ore one of: ${hosts[@]}"
+            exit 1
+        fi
+        ;;
+
+    clean|clear)
+        echo "Deleting directory $target"
+        rm -rf "$target"
+        ;;
+
+    help)
+        usage
+        ;;
+    *)
+        echo "Unknown action '$action'."
+        usage
+        exit 1
+esac

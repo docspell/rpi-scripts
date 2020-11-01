@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -e
+if [ -z "$1" ]; then
+    echo "Mandatory host name not specified"
+    exit 1
+fi
+
+source $(dirname $(realpath $0))/../config/global
+source $(dirname $(realpath $0))/../scripts/colors
+
+templ=$workingdir/config/docspell/docspell.conf
+mo=$workingdir/scripts/mo
+
+remote=${hostip[$1]}
+
+echo "${yellow}- Installing docspell on $1/$remote ...${reset}"
+set_dark
+
+if ssh root@$remote "command -v tesseract" > /dev/null; then
+    echo "Packages already installed"
+else
+    ssh root@$remote "apt-get install -y ghostscript tesseract-ocr tesseract-ocr-deu tesseract-ocr-eng unpaper unoconv wkhtmltopdf"
+fi
+
+if ssh root@$remote "command -v docspell-restserver" > /dev/null; then
+    echo "Docspell debian packages already installed"
+else
+    ssh root@$remote "if [ ! -e $ds_restserver_deb ] || [[ \"$ds_restserver_deb\" =~ \"SNAPSHOT\" ]]; then curl -LO $ds_restserver_url; fi && dpkg -i $ds_restserver_deb"
+    ssh root@$remote "if [ ! -e $ds_joex_deb ] || [[ \"$ds_joex_deb\" =~ \"SNAPSHOT\" ]]; then curl -LO $ds_joex_url; fi && dpkg -i $ds_joex_deb"
+fi
+
+
+echo "${yellow}- Install ocrmypdf ...${reset}"
+set_dark
+
+if ssh root@$remote "command -v ocrmypdf" > /dev/null; then
+    echo "Packages already installed"
+else
+    # ssh root@$remote "apt-get install -y python3 python3-pip python3-wheel pngquant qpdf zlib1g-dev gcc g++ libffi-dev libxslt-dev libxml2-dev libssl-dev"
+    # ssh root@$remote "pip3 install ocrmypdf"
+    ssh root@$remote "apt-get install -y ocrmypdf"
+fi
+
+
+echo "${yellow}- Copying docspell config ...${reset}"
+set_dark
+
+export ds_int_header
+cat $templ | $mo > $target/docspell.conf
+scp $target/docspell.conf root@$remote:/etc/docspell.conf
+
+ssh root@$remote "cd /etc/docspell-restserver && rm docspell-server.conf && ln -snf /etc/docspell.conf docspell-server.conf"
+ssh root@$remote "cd /etc/docspell-joex && rm docspell-joex.conf && ln -snf /etc/docspell.conf docspell-joex.conf"
+
+ssh root@$remote "systemctl restart docspell-restserver ; systemctl restart docspell-joex"
+reset_color
