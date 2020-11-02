@@ -1,0 +1,8 @@
+[Unit]
+Description=Update docspell check
+
+[Timer]
+OnCalendar=Sun *-*-* 07:00:00
+
+[Install]
+WantedBy=timers.target

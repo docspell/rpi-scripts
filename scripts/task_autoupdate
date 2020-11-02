@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -e
+
+if [ -z "$1" ]; then
+    echo "Mandatory hostname not specified"
+    exit 1
+fi
+
+source $(dirname $(realpath $0))/../config/global
+source $(dirname $(realpath $0))/../scripts/colors
+
+remote=${hostip[$1]}
+mo=$workingdir/scripts/mo
+
+
+echo "${yellow}- Installing auto-update for docspell on $1/$remote ...${reset}"
+set_dark
+
+echo "  - Copying update script"
+scp $workingdir/config/autoupdate/update-docspell.sh root@$remote:/usr/local/bin/update-docspell.sh
+ssh root@$remote "chmod 755 /usr/local/bin/update-docspell.sh"
+
+echo "  - Installing systemd timer"
+scp $workingdir/config/autoupdate/timer.unit root@$remote:/etc/systemd/system/docspell-autoupdate.timer
+scp $workingdir/config/autoupdate/service.unit root@$remote:/etc/systemd/system/docspell-autoupdate.service
+ssh root@$remote "systemctl daemon-reload"
+ssh root@$remote "systemctl enable --now docspell-autoupdate.service docspell-autoupdate.timer"

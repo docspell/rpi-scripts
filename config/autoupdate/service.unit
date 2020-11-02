@@ -1,0 +1,7 @@
+[Unit]
+Description=Update docspell
+
+[Service]
+Type=oneshot
+
+ExecStart=/usr/local/bin/update-docspell.sh
