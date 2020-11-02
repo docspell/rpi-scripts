@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -e
+
+if [ -z "$1" ]; then
+    echo "Mandatory hostname not specified"
+    exit 1
+fi
+
+source $(dirname $(realpath $0))/../config/global
+source $(dirname $(realpath $0))/../scripts/colors
+
+remote=${hostip[$1]}
+mo=$workingdir/scripts/mo
+
+
+echo "${yellow}- Installing periodic db dump script on $1/$remote ...${reset}"
+set_dark
+
+echo "  - Installing docspell dump script"
+scp $workingdir/config/dumpdb/dumpdb.sh root@$remote:/usr/local/bin/
+ssh root@$remote "chmod 755 /usr/local/bin/dumpdb.sh"
+
+echo "  - Installing systemd timer"
+scp $workingdir/config/dumpdb/timer.unit root@$remote:/etc/systemd/system/docspell-dumpdb.timer
+scp $workingdir/config/dumpdb/service.unit root@$remote:/etc/systemd/system/docspell-dumpdb.service
+ssh root@$remote "systemctl daemon-reload"
+ssh root@$remote "systemctl enable --now docspell-dumpdb.service docspell-dumpdb.timer"

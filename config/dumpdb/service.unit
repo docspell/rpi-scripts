@@ -1,0 +1,7 @@
+[Unit]
+Description=Dump docspell database
+
+[Service]
+Type=oneshot
+
+ExecStart=/usr/local/bin/dumpdb.sh -d
