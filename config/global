@@ -4,9 +4,9 @@
 #
 # Defines configuration for all RPis.
 
-
 # The url to the dietpi image. This is used with the flash script
-dietpi_image="https://dietpi.com/downloads/images/testing/DietPi_RPi-ARMv8-Buster.7z"
+dietpi_image="https://dietpi.com/downloads/images/testing/DietPi_RPi-ARMv8-Buster.7z" #64bit
+#dietpi_image="https://dietpi.com/downloads/images/DietPi_RPi-ARMv6-Buster.7z" ##32bit
 
 # Your public ssh key
 id_pub=~/.ssh/id_rsa.pub
@@ -24,7 +24,7 @@ hosts=(sajetta)
 
 # The IPs for all the RPI machines. Use the names as defined above.
 declare -A hostip
-hostip[sajetta]=192.168.1.141
+hostip[sajetta]=192.168.1.142
 
 # Some extra packages to install via apt-get.
 declare -A extra_packages

@@ -3,10 +3,15 @@
 This repository contains scripts and notes to automate most of
 creating a raspberry pi with docspell on it.
 
-*Note: This is a poor-mans way to do thing, instead of e.g.
-automatically generating flash images… which may come later. Any help
-here is much appreciated! So don't hesitate to submit issues and/or
-pull requests :-)*
+*Note: This is a poor-mans way, instead of e.g. generating images that
+can be dd-ed onto a sd card… which may come later. Any help here is
+much appreciated! So don't hesitate to submit issues and/or pull
+requests :-)*
+
+The advantage of this method, however, is that you can pick what to
+install, e.g. only install docspell + solr to an raspberry pi that
+already has postgres running (which requires a raspbian or
+raspbian-based system).
 
 ## Basics
 

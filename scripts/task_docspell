@@ -48,7 +48,7 @@ if ssh root@$remote "command -v ocrmypdf" > /dev/null; then
     echo "  - OcrMyPDF already installed"
 else
     # ssh root@$remote "apt-get install -y python3 python3-pip python3-wheel pngquant qpdf zlib1g-dev gcc g++ libffi-dev libxslt-dev libxml2-dev libssl-dev"
-    # ssh root@$remote "pip3 install ocrmypdf"
+    # ssh root@$remote "pip3 install --upgrade pip ocrmypdf" -> doesn't work
     ssh root@$remote "apt-get install -y ocrmypdf"
 fi
 
