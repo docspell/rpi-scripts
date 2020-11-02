@@ -17,17 +17,15 @@ remote=${hostip[$1]}
 echo "${yellow}- Setting up samba ...${reset}"
 set_dark
 
-if ssh root@$remote "cat /etc/samba/smb.conf | grep $os_user" 2> /dev/null 1>&2; then
-    echo "Samba seems already setup"
-else
-    export user=$os_user
-    export group=$os_user
-    smbconf=$(cat $templ | $mo)
-    ssh root@$remote "echo \"$smbconf\" >> /etc/samba/smb.conf"
-    ssh root@$remote "sed -i 's,WORKGROUP,Docspell,g' /etc/samba/smb.conf"
-    ssh root@$remote "smbpasswd -L -na $os_user"
-fi
+# if ssh root@$remote "cat /etc/samba/smb.conf | grep $os_user" 2> /dev/null 1>&2; then
+#     echo "Samba seems already setup"
+# else
 
+export user=$os_user
+export group=$os_user
+cat $templ | $mo > $target/smb.conf
+scp $target/smb.conf root@$remote:/etc/samba/smb.conf
+ssh root@$remote "(echo $os_user; echo $os_user) | smbpasswd -s -a $os_user"
 ssh root@$remote "systemctl restart smbd.service"
 
 reset_color
