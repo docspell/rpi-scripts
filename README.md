@@ -77,16 +77,8 @@ things from this repo.
 
 ## Customize
 
-This will install everything required to run docspell. Additionally
-samba is installed and exposes the following directories:
-
-- "Incoming" (german: "Eingehend"): the folder that is watched to
-  import files in docspell. You can mount/access it from a remote
-  computer and drop files in there to be processed.
-- "Config": the folder containing the docspell configuration file. You
-  still must restart the app(s) manually after making changes.
-- "Backups": a folder with daily database backups. You can copy them
-  to some other place.
+The following will install everything required to run docspell and
+docspell itself.
 
 Go to `config/global` and check the settings. Every machine must be
 configured with a name and an IP address. When everything looks ok,
@@ -99,9 +91,59 @@ run
 This will run necessary commands on the machine configured with
 `<name>`. Use special name `all` to run setup for all machines.
 
+### What happens when executing this?
+
+The `rpii setup` simply executes all `scripts/task_*` in a specific
+order. *These scripts change/remove config files on your pi, so please
+look at them first!*.
+
+To only run a specific task, use `rpi task <taskname> all`, and
+replace `<taskname>` with the name of a task (the part following
+`task_`). For example, this installs solr (from the webpage, not via
+apt): `rpi task solr all`. The `all` means "do this on all machines".
+Which machines are defined in `config/global`.
+
+
+### What is included?
+#### Requirements for Docspell
+
+- Solr 8.6
+- PostgreSQL
+- Java
+- consumedir, configured to watch a directory
+
+#### Samba
+
+Exposing:
+- "Incoming" (german: "Eingehend"): the folder that is watched to
+  import files in docspell. You can mount/access it from a remote
+  computer and drop files in there to be processed.
+- "Config": the folder containing the docspell configuration file. You
+  still must restart the app(s) manually after making changes.
+- "Backups": a folder with daily database backups. You can copy them
+  to some other place.
+
+
+#### Nginx
+
+- acting as a simple reverse proxy (no certs/https)
+
+
+#### Periodic DB-Dumps
+
+- a systemd timer is setup to periodically dump the database, keeping
+  last `N` files
+- they should be copied somewhere for backup
+
 
 ## Limitations
 
 - currently, docx files don't seem to work here, because libreoffice
   crashes (not really sure what happens exactly…). This might be
   mitigated by using a different base image (e.g. raspbian)
+- Not a real limitation, but: ocrmypdf is installed via apt, which
+  means it is a *very* old version. All my attempts to install it via
+  other means failed….
+- backups
+- reverse proxy
+- fix samba setup

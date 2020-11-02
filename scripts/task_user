@@ -20,4 +20,10 @@ else
     ssh root@$remote "useradd --home-dir /home/$os_user -m --user-group --shell /bin/bash $os_user"
 fi
 
+if [ $(ssh root@$remote "hostname") == $os_hostname ]; then
+    echo "  - hostname already set to $os_hostname"
+else
+    ssh root@$remote "hostnamectl set-hostname $os_hostname || hostname $os_hostname"
+fi
+
 reset_color
