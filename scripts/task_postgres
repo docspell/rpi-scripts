@@ -32,10 +32,10 @@ else
     ssh root@$remote "sed -i \"s,data_directory = '/var/lib/postgresql/11/main',data_directory = '/mnt/usb/db',g\" /etc/postgresql/11/main/postgresql.conf"
 fi
 
-if ssh root@$remote "stat /mnt/usb/db/PG_VERSION" > /dev/null; then
+if ssh root@$remote "stat /mnt/usb/db/PG_VERSION" > /dev/null 2>&1; then
     echo "  - Data directory already initialized"
 else
-    ssh root@$remote 'su postgres -c "/usr/lib/postgresql/11/bin/initdb /mnt/usb/db/"'
+    ssh root@$remote 'chown -R postgres:postgres /mnt/usb/db && su - postgres -c "/usr/lib/postgresql/11/bin/initdb /mnt/usb/db/"'
 fi
 
 echo "${underline}- Initialize role and create docspell db …${reset}"

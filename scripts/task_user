@@ -17,8 +17,7 @@ set_dark
 if ssh root@$remote "cat /etc/passwd | grep $os_user" 2> /dev/null 1>&2; then
     echo "  - User $os_user already set up."
 else
-    ssh root@$remote "addgroup $os_user"
-    ssh root@$remote "adduser --shell /bin/bash --ingroup $os_user $os_user"
+    ssh root@$remote "useradd --home-dir /home/$os_user -m --user-group --shell /bin/bash $os_user"
 fi
 
 reset_color

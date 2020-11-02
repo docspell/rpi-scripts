@@ -60,7 +60,7 @@ you will be guided through the setup.
 
 Choose the following Options:
 
-- SSH Server: OpenSSH (needed for scp)
+- SSH Server: OpenSSH (instead of Dropbear, needed for scp)
 - Webserver: Nginx (used as reverse proxy)
 - Samba server
 
@@ -79,7 +79,7 @@ samba is installed and exposes the following directories:
   import files in docspell. You can mount/access it from a remote
   computer and drop files in there to be processed.
 - "Config": the folder containing the docspell configuration file. You
-  still must restart the app(s) manually.
+  still must restart the app(s) manually after making changes.
 - "Backups": a folder with daily database backups. You can copy them
   to some other place.
 
