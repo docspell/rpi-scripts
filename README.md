@@ -144,6 +144,4 @@ Exposing:
 - Not a real limitation, but: ocrmypdf is installed via apt, which
   means it is a *very* old version. All my attempts to install it via
   other means failed….
-- backups
-- reverse proxy
 - fix samba setup

@@ -16,16 +16,20 @@ remote=${hostip[$1]}
 echo "${yellow}- Installing nginx reverse proxy …${reset}"
 set_dark
 
-if ssh root@$remote "cat /etc/nginx/nginx.conf" | grep docspell; then
-    echo "  - Nginx already setup"
+if ssh root@$remote "command -v nginx" 2> /dev/null; then
+    echo "  - Nginx package already installed"
 else
     ssh root@$remote "apt-get install -y nginx"
-
-    # export nginx_servername
-    # cat $templ | mo > $target/nginx-docspell
-
-    # scp $target/nginx-docspell root@$remote:/etc/nginx/sites-enabled/
-    # ssh root@$remote "systemctl reload nginx"
 fi
+
+export nginx_servername
+export os_hostname
+cat $templ | mo > $target/nginx-docspell
+
+scp $target/nginx-docspell root@$remote:/etc/nginx/sites-available/docspell
+ssh root@$remote "ln -snf /etc/nginx/sites-available/docspell /etc/nginx/sites-enabled/docspell"
+ssh root@$remote "rm -f /etc/nginx/sites-enabled/default"
+ssh root@$remote "systemctl reload nginx"
+ssh root@$remote "nginx -t"
 
 reset_color
